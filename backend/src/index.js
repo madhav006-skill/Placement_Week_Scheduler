@@ -14,6 +14,16 @@ app.use(express.json());
 
 app.use('/api', apiRoutes);
 
+// Debug route
+app.use('/debug', (req, res) => {
+    res.json({
+        url: req.url,
+        originalUrl: req.originalUrl,
+        path: req.path,
+        headers: req.headers
+    });
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Connect to DB
