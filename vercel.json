@@ -12,9 +12,17 @@
     {
       "src": "api/index.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/hello.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/hello",
+      "dest": "/api/hello.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
