@@ -3,10 +3,10 @@ require('dotenv').config(); // Ensure dotenv is loaded if running locally
 
 const connectDB = async () => {
     try {
-        const mongoUri = process.env.MONGODB_URI;
-        if (!mongoUri) {
-            throw new Error('MONGODB_URI environment variable is not defined.');
-        }
+        const user = 'amankumar4552023_db_user';
+        const pass = 'PrhoUu1kdnzkhk4m';
+        const cluster = 'cluster0.o2mltet.mongodb.net';
+        const mongoUri = process.env.MONGODB_URI || `mongodb+srv://${user}:${pass}@${cluster}/?appName=Cluster0`;
         
         await mongoose.connect(mongoUri);
         
