@@ -1,23 +1,21 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "builds": [
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "zeroConfig": true
+        "distDir": "dist"
       }
     },
     {
-      "src": "api/index.js",
+      "src": "backend-entry.js",
       "use": "@vercel/node"
     }
   ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api?path=$1"
+      "destination": "/backend-entry.js?path=$1"
     },
     {
       "source": "/(.*)",

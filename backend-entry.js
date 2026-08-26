@@ -1,4 +1,4 @@
-const app = require('../backend/src/index');
+const app = require('./backend/src/index');
 
 module.exports = (req, res) => {
   // Reconstruct req.url from Vercel rewrite query parameter
