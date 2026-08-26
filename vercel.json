@@ -10,14 +10,14 @@
       }
     },
     {
-      "src": "api/index.js",
+      "src": "serverless/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "dest": "/serverless/index.js"
     },
     {
       "src": "/(assets/.*|favicon\\.svg|icons\\.svg)",
