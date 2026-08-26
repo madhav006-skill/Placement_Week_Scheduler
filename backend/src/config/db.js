@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-
-let mongoServer;
+require('dotenv').config(); // Ensure dotenv is loaded if running locally
 
 const connectDB = async () => {
     try {
-        mongoServer = await MongoMemoryServer.create();
-        const mongoUri = mongoServer.getUri();
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+            throw new Error('MONGODB_URI environment variable is not defined.');
+        }
         
         await mongoose.connect(mongoUri);
         
-        console.log(`MongoDB Memory Server connected at ${mongoUri}`);
+        console.log(`MongoDB connected successfully`);
     } catch (err) {
         console.error('Error connecting to MongoDB:', err);
         process.exit(1);
@@ -19,9 +19,6 @@ const connectDB = async () => {
 
 const disconnectDB = async () => {
     await mongoose.disconnect();
-    if (mongoServer) {
-        await mongoServer.stop();
-    }
 };
 
 module.exports = connectDB;

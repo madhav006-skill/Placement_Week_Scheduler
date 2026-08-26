@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const ScheduleGrid = ({ interviews }: { interviews: any[] }) => {
   const [filter, setFilter] = useState('SCHEDULED');
