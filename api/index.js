@@ -1,8 +1,8 @@
 const app = require('../backend/src/index');
 
 module.exports = (req, res) => {
-  if (!req.url.startsWith('/api')) {
-    req.url = '/api' + req.url;
+  if (req.query && req.query.path) {
+    req.url = '/api/' + req.query.path;
   }
   return app(req, res);
 };
