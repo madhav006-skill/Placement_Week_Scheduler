@@ -180,4 +180,113 @@ router.get('/diff/:versionId', async (req, res) => {
     }
 });
 
+
+
+
+// --- NEW CRUD ROUTES ---
+
+// Create Student
+router.post('/students', async (req, res) => {
+    try {
+        const student = new Student(req.body);
+        await student.save();
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Student
+router.put('/students/:id', async (req, res) => {
+    try {
+        const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('shortlistedCompanyIds');
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Withdraw Student manually (this triggers replan if active interviews exist)
+router.put('/students/:id/withdraw', async (req, res) => {
+    try {
+        const latestVersion = await ScheduleVersion.findOne().sort({ createdAt: -1 });
+        if (latestVersion) {
+            // Trigger replanner directly which handles DB persistence
+            const newVersion = await runReplanner(latestVersion._id, { type: 'STUDENT_WITHDRAW', targetId: req.params.id });
+            res.json({ message: 'Student withdrawn and schedule replanned', newVersion });
+        } else {
+            // If no schedule exists, just update DB
+            await Student.findByIdAndUpdate(req.params.id, { status: 'WITHDRAWN' });
+            res.json({ message: 'Student withdrawn' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Create Company
+router.post('/companies', async (req, res) => {
+    try {
+        const company = new Company(req.body);
+        await company.save();
+        res.json(company);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Company
+router.put('/companies/:id', async (req, res) => {
+    try {
+        const company = await Company.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(company);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Panel Availability
+router.put('/panels/:id/availability', async (req, res) => {
+    try {
+        const { isAvailable } = req.body;
+        const panel = await Panel.findById(req.params.id);
+        
+        if (!isAvailable) {
+            const latestVersion = await ScheduleVersion.findOne().sort({ createdAt: -1 });
+            if (latestVersion) {
+                const newVersion = await runReplanner(latestVersion._id, { type: 'PANEL_DROP', targetId: req.params.id });
+                return res.json({ message: 'Panel marked unavailable and schedule replanned', panel, newVersion });
+            }
+        }
+        
+        panel.isAvailable = isAvailable;
+        await panel.save();
+        res.json({ message: 'Panel availability updated', panel });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Room Availability
+router.put('/rooms/:id/availability', async (req, res) => {
+    try {
+        const { isAvailable } = req.body;
+        const room = await Room.findById(req.params.id);
+        
+        if (!isAvailable) {
+            const latestVersion = await ScheduleVersion.findOne().sort({ createdAt: -1 });
+            if (latestVersion) {
+                const newVersion = await runReplanner(latestVersion._id, { type: 'ROOM_UNAVAILABLE', targetId: req.params.id });
+                return res.json({ message: 'Room marked unavailable and schedule replanned', room, newVersion });
+            }
+        }
+        
+        room.isAvailable = isAvailable;
+        await room.save();
+        res.json({ message: 'Room availability updated', room });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

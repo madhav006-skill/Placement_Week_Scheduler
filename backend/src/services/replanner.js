@@ -20,9 +20,18 @@ function minsToTime(mins) {
 async function runReplanner(parentVersionId, disruption) {
     console.log(`Running replan for disruption: ${disruption.type}`);
     
-    // 1. Create new version
+    // 0. Persist disruption state to DB
+    if (disruption.type === 'STUDENT_WITHDRAW') {
+        await Student.findByIdAndUpdate(disruption.targetId, { status: 'WITHDRAWN' });
+    } else if (disruption.type === 'PANEL_DROP') {
+        await Panel.findByIdAndUpdate(disruption.targetId, { isAvailable: false });
+    } else if (disruption.type === 'ROOM_UNAVAILABLE') {
+        await Room.findByIdAndUpdate(disruption.targetId, { isAvailable: false });
+    }
+
+    // 1. Create new schedule version
     const newVersion = new ScheduleVersion({ 
-        description: `Replan: ${disruption.type}`,
+        description: `Replanned after ${disruption.type}`,
         parentVersionId,
         disruptionDetails: disruption
     });
